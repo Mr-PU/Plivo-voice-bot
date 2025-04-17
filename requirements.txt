@@ -1,0 +1,4 @@
+flask
+aiohttp
+nest-asyncio
+elevenlabs

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Automate calls with Iffort's AI assistant">
+    <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Iffort Call Demo</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .cta-box {
+            border: 2px solid #ff2d55;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        .title-text {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .logo-img {
+            height: 40px;
+            width: auto;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col items-center justify-center">
+    <!-- Header -->
+    <header class="w-full bg-black py-4 fixed top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="/static/logo.png" alt="Iffort Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/40?text=Iffort';">
+                <span class="ml-3 text-xl font-bold text-pink-500">Iffort</span>
+            </div>
+            <nav class="flex space-x-6">
+                <a href="#" class="hover:text-pink-300 transition">Pricing</a>
+                <a href="#" class="hover:text-pink-300 transition">Contact Us</a>
+                <a href="#" class="hover:text-pink-300 transition">Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center pt-20 pb-10">
+        <div class="text-center">
+            <h1 class="text-5xl font-extrabold tracking-tight title-text">Automate Phone Calls with AI</h1>
+            <p class="mt-4 text-lg text-gray-400">Iffort helps your company build and deploy AI voice agents that act like humans and scale like machines.</p>
+            <div class="mt-10 max-w-md mx-auto cta-box p-6">
+                <h2 class="text-xl font-semibold mb-4">Talk to Iffort</h2>
+                <form id="callForm" method="POST" action="/" class="space-y-4">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="text-gray-400"></span>
+                        <input
+                            type="tel"
+                            id="phone_number"
+                            name="phone_number"
+                            placeholder="Enter phone number"
+                            class="bg-transparent border-b-2 border-gray-500 focus:border-pink-500 outline-none w-full py-2"
+                            pattern="^\+\d{10,15}$"
+                            title="Phone number must start with '+' followed by 10-15 digits (e.g., +12345678901)"
+                            required
+                        >
+                    </div>
+                    <button
+                        type="submit"
+                        id="callButton"
+                        class="w-full bg-gray-700 text-white py-2 rounded-md hover:bg-gray-600 transition disabled:bg-gray-500"
+                    >
+                        Call Me
+                    </button>
+                </form>
+                <div id="feedback" class="mt-4 text-sm hidden" role="alert">
+                    <p id="feedbackMessage"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const form = document.getElementById('callForm');
+        const callButton = document.getElementById('callButton');
+        const feedback = document.getElementById('feedback');
+        const feedbackMessage = document.getElementById('feedbackMessage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phoneNumber = `+91${form.phone_number.value.replace(/^\+91/, '')}`; // Ensure +91 prefix
+            if (!phoneNumber.match(/^\+91\d{10}$/)) {
+                showFeedback('Please enter a valid 10-digit number with +91.', 'error');
+                return;
+            }
+
+            callButton.disabled = true;
+            callButton.textContent = 'Calling...';
+
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `phone_number=${encodeURIComponent(phoneNumber)}`
+                });
+                const text = await response.text();
+                showFeedback(text, 'success');
+            } catch (error) {
+                showFeedback('Failed to initiate call. Please try again.', 'error');
+            } finally {
+                callButton.disabled = false;
+                callButton.textContent = 'Call Me';
+            }
+        });
+
+        function showFeedback(message, type) {
+            feedback.classList.remove('hidden');
+            feedback.classList.add(type === 'success' ? 'text-green-400' : 'text-red-400');
+            feedbackMessage.textContent = message;
+            setTimeout(() => {
+                feedback.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
